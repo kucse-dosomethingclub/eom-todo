@@ -1,5 +1,7 @@
 import CheckIcon from "./components/CheckIcon";
-import Check from "./components/Check";
+import Addbox from "./components/Addbox";
+import Tabmenu from "./components/Tabmenu";
+import Checklist from "./components/Checklist";
 
 const App = () => {
   return (
@@ -14,19 +16,19 @@ const App = () => {
         </div>
 
         <div className="space-y-4">
-          <div className="flex gap-2">
-            <input
-              className="flex-1 rounded-[14px] h-[50px] border border-slate-200 bg-slate-50 px-4 py-3 text-slate-400 focus:ring-0 focus:outline-blue-500"
-              placeholder="할 일을 입력해주세요"
-            ></input>
-            <button className="h-[50px] rounded-[14px] px-6 bg-slate-300 text-white font-medium shadow-md shadow-slate-500/10">추가</button>
-          </div>
-          
-          <div className="flex p-1 rounded-[14px] bg-slate-100">
-            <Check isSelected={true} name="전체"/>
-            <Check isSelected={false} name={"미완료"}/>
-            <Check isSelected={false} name={"완료"}/>
-          </div>
+          <Addbox placeholder="할 일을 입력해주세요." name="추가"/>
+          <Tabmenu />
+        </div>
+
+        { /*Section */ }
+        <div className="space-y-[12px] h-[300px] text-slate-700">
+          <Checklist name="할 일" />
+          <Checklist name="완료 한 일" />
+        </div>
+
+        { /*Footer*/ }
+        <div className="border border-slate-100 pt-[24px] h-auto text-slate-500">
+          남은 할 일 1개
         </div>
       </div>
     </div>
