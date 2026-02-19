@@ -1,9 +1,18 @@
+import { useState } from 'react';
 import CheckIcon from "./components/CheckIcon";
 import Addbox from "./components/Addbox";
 import Tabmenu from "./components/Tabmenu";
 import Checklist from "./components/Checklist";
 
 const App = () => {
+  const [todo, setTodos] = useState<string[]>([]);
+  
+  const handleAddTodo = (name: string) => {
+    console.log("데이터 도착", name);
+    { /*...은 기존 메모리에 있던 데이터를 새로운 메모리 공간으로 몽땅 복사해오는 작업 */}
+    setTodos([...todo, name]);
+  };
+
   return (
     <div className="bg-slate-50 w-full h-screen flex justify-center items-center">
       <div className="w-[480px] bg-white p-8 rounded-3xl shadow-2xl shadow-slate-500/5 space-y-8">
@@ -16,19 +25,22 @@ const App = () => {
         </div>
 
         <div className="space-y-4">
-          <Addbox placeholder="할 일을 입력해주세요." name="추가"/>
+          <Addbox placeholder="할 일을 입력해주세요." name="추가" Onclick={ handleAddTodo }/>
           <Tabmenu />
         </div>
 
         { /*Section */ }
         <div className="space-y-[12px] h-[300px] text-slate-700">
+          {todo.map((todo, index) => (
+            <Checklist key = {index} name = {todo} />
+          ))}
           <Checklist name="할 일" />
           <Checklist name="완료 한 일" />
         </div>
 
         { /*Footer*/ }
-        <div className="border border-slate-100 pt-[24px] h-auto text-slate-500">
-          남은 할 일 1개
+        <div className="border-t border-slate-100 pt-[24px] text-slate-500 font-medium">
+          남은 할 일 <span className="text-blue-600">1</span>개
         </div>
       </div>
     </div>
