@@ -1,17 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CheckIcon from "./components/CheckIcon";
 import Addbox from "./components/Addbox";
 import Tabmenu from "./components/Tabmenu";
 import Checklist from "./components/Checklist";
 
 const App = () => {
-  const [todo, setTodos] = useState<string[]>([]);
+  { /* 불러오기 */}
+  const [todo, setTodos] = useState<string[]>(() => {
+    const localTodoList = localStorage.getItem('todo');
+    return localTodoList ? JSON.parse(localTodoList) : [];
+  });
   
   const handleAddTodo = (name: string) => {
     console.log("데이터 도착", name);
-    { /*...은 기존 메모리에 있던 데이터를 새로운 메모리 공간으로 몽땅 복사해오는 작업 */}
+    { /* ...은 기존 메모리에 있던 데이터를 새로운 메모리 공간으로 몽땅 복사해오는 작업 */}
     setTodos([...todo, name]);
   };
+
+  { /* 저장하기 */}
+  useEffect(() => {
+    localStorage.setItem('todo', JSON.stringify(todo));
+  }, [todo]);
 
   return (
     <div className="bg-slate-50 w-full h-screen flex justify-center items-center">
@@ -30,12 +39,10 @@ const App = () => {
         </div>
 
         { /*Section */ }
-        <div className="space-y-[12px] h-[300px] text-slate-700">
+        <div className="space-y-[12px] h-[300px] text-slate-700 overflow-y-auto">
           {todo.map((todo, index) => (
             <Checklist key = {index} name = {todo} />
           ))}
-          <Checklist name="할 일" />
-          <Checklist name="완료 한 일" />
         </div>
 
         { /*Footer*/ }
