@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import CheckIcon from "./components/CheckIcon";
 import Addbox from "./components/Addbox";
 import Tabmenu from "./components/Tabmenu";
@@ -32,6 +32,18 @@ const App = () => {
     localStorage.setItem('todo', JSON.stringify(todo));
   }, [todo]);
 
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+
+  { /* useMemo를 사용해 필터링된 리스트 캐싱 */}
+  const filteredTodos = useMemo(() => {
+    return todo.filter((item) => {
+      if(selectedIndex === 0) return true;
+      if(selectedIndex === 1) return item.isChecked;
+      if(selectedIndex === 2) return !item.isChecked;
+      return true;
+    });
+  },[todo, selectedIndex]);
+
   return (
     <div className="bg-slate-50 w-full h-screen flex justify-center items-center">
       <div className="w-[480px] bg-white p-8 rounded-3xl shadow-2xl shadow-slate-500/5 space-y-8">
@@ -45,12 +57,12 @@ const App = () => {
 
         <div className="space-y-4">
           <Addbox placeholder="할 일을 입력해주세요." name="추가" Onclick={ handleAddTodo }/>
-          <Tabmenu />
+          <Tabmenu selectedIndex={selectedIndex} isSelected={(index) => setSelectedIndex(index)}/>
         </div>
 
         { /*Section */ }
         <div className="space-y-[12px] h-[300px] text-slate-700 overflow-y-auto">
-          {todo.map((item) => (
+          {filteredTodos.map((item) => (
             <Checklist key = {item.id} name = {item.name} />
           ))}
         </div>
