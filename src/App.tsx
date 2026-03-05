@@ -27,14 +27,14 @@ const App = () => {
     setTodos([...todo, newTodo]);
   };
 
-  { /* 저장하기 */}
+  { /* 저장하기 */ }
   useEffect(() => {
     localStorage.setItem('todo', JSON.stringify(todo));
   }, [todo]);
 
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
-  { /* useMemo를 사용해 필터링된 리스트 캐싱 */}
+  { /* useMemo를 사용해 필터링된 리스트 캐싱 */ }
   const filteredTodos = useMemo(() => {
     return todo.filter((item) => {
       if(selectedIndex === 0) return true;
@@ -43,6 +43,11 @@ const App = () => {
       return true;
     });
   },[todo, selectedIndex]);
+
+  const handleToggle = (id: number) => {
+    setTodos((prevTodo) => prevTodo.map((item) => 
+      item.id === id ? { ...item, isChecked: !item.isChecked }: item));
+  };
 
   return (
     <div className="bg-slate-50 w-full h-screen flex justify-center items-center">
@@ -63,7 +68,7 @@ const App = () => {
         { /*Section */ }
         <div className="space-y-[12px] h-[300px] text-slate-700 overflow-y-auto">
           {filteredTodos.map((item) => (
-            <Checklist key = {item.id} name = {item.name} />
+            <Checklist key = {item.id} name = {item.name} isChecked={item.isChecked} onToggle={() => handleToggle(item.id)}/>
           ))}
         </div>
 

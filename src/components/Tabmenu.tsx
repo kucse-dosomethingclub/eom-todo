@@ -5,7 +5,7 @@ interface MenuItem {
   selectedIndex: number,
 }
 
-const Tabmenu = ({ selectedIndex, isSelected}: MenuItem) => {
+const Tabmenu = ({ selectedIndex, isSelected }: MenuItem) => {
   const menu: string[] = ["전체", "완료", "미완료"]
 
   return(
