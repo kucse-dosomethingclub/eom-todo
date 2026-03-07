@@ -49,6 +49,10 @@ const App = () => {
       item.id === id ? { ...item, isChecked: !item.isChecked }: item));
   };
 
+  const remainingCount = useMemo(() => {
+    return todo.filter(item => !item.isChecked).length;
+  }, [todo]);
+
   return (
     <div className="bg-slate-50 w-full h-screen flex justify-center items-center">
       <div className="w-[480px] bg-white p-8 rounded-3xl shadow-2xl shadow-slate-500/5 space-y-8">
@@ -74,7 +78,7 @@ const App = () => {
 
         { /*Footer*/ }
         <div className="border-t border-slate-100 pt-[24px] text-slate-500 font-medium">
-          남은 할 일 <span className="text-blue-600">1</span>개
+          남은 할 일 <span className="text-blue-600">{remainingCount}</span>개
         </div>
       </div>
     </div>
