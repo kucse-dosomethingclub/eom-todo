@@ -1,5 +1,88 @@
+import { useState, useEffect, useMemo } from 'react';
+import CheckIcon from "./components/CheckIcon";
+import Addbox from "./components/Addbox";
+import Tabmenu from "./components/Tabmenu";
+import Checklist from "./components/Checklist";
+
+interface TodoItem {
+  id: number;
+  name: string;
+  isChecked: boolean;
+}
+
 const App = () => {
-  return <></>
+  { /* 불러오기 */}
+  const [todo, setTodos] = useState<TodoItem[]>(() => {
+    const localTodoList = localStorage.getItem('todo');
+    return localTodoList ? JSON.parse(localTodoList) : [];
+  });
+  
+  const handleAddTodo = (input: string) => {
+    const newTodo: TodoItem = {
+      id: Date.now(),
+      name: input,
+      isChecked: false,
+    };
+    { /* ...은 기존 메모리에 있던 데이터를 새로운 메모리 공간으로 몽땅 복사해오는 작업 */}
+    setTodos([...todo, newTodo]);
+  };
+
+  { /* 저장하기 */ }
+  useEffect(() => {
+    localStorage.setItem('todo', JSON.stringify(todo));
+  }, [todo]);
+
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+
+  { /* useMemo를 사용해 필터링된 리스트 캐싱 */ }
+  const filteredTodos = useMemo(() => {
+    return todo.filter((item) => {
+      if(selectedIndex === 0) return true;
+      if(selectedIndex === 1) return item.isChecked;
+      if(selectedIndex === 2) return !item.isChecked;
+      return true;
+    });
+  },[todo, selectedIndex]);
+
+  const handleToggle = (id: number) => {
+    setTodos((prevTodo) => prevTodo.map((item) => 
+      item.id === id ? { ...item, isChecked: !item.isChecked }: item));
+  };
+
+  const remainingCount = useMemo(() => {
+    return todo.filter(item => !item.isChecked).length;
+  }, [todo]);
+
+  return (
+    <div className="bg-slate-50 w-full h-screen flex justify-center items-center">
+      <div className="w-[480px] bg-white p-8 rounded-3xl shadow-2xl shadow-slate-500/5 space-y-8">
+        { /* Header */ }
+        <div className="flex items-center gap-2">
+          <div className="rounded-full w-[40px] h-[40px] bg-blue-50 flex justify-center items-center text-blue-600">
+            <CheckIcon size={22}/>
+          </div>
+          <h1 className="text-2xl font-bold">엄투두</h1>
+        </div>
+
+        <div className="space-y-4">
+          <Addbox placeholder="할 일을 입력해주세요." name="추가" Onclick={ handleAddTodo }/>
+          <Tabmenu selectedIndex={selectedIndex} isSelected={(index) => setSelectedIndex(index)}/>
+        </div>
+
+        { /*Section */ }
+        <div className="space-y-[12px] h-[300px] text-slate-700 overflow-y-auto">
+          {filteredTodos.map((item) => (
+            <Checklist key = {item.id} name = {item.name} isChecked={item.isChecked} onToggle={() => handleToggle(item.id)}/>
+          ))}
+        </div>
+
+        { /*Footer*/ }
+        <div className="border-t border-slate-100 pt-[24px] text-slate-500 font-medium">
+          남은 할 일 <span className="text-blue-600">{remainingCount}</span>개
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default App;
