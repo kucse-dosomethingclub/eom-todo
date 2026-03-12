@@ -10,6 +10,8 @@ interface TodoItem {
   isChecked: boolean;
 }
 
+const menu = ["전체", "완료", "미완료"]
+
 const App = () => {
   { /* 불러오기 */}
   const [todo, setTodos] = useState<TodoItem[]>(() => {
@@ -65,14 +67,14 @@ const App = () => {
         </div>
 
         <div className="space-y-4">
-          <Addbox placeholder="할 일을 입력해주세요." name="추가" Onclick={ handleAddTodo }/>
-          <Tabmenu selectedIndex={selectedIndex} isSelected={(index) => setSelectedIndex(index)}/>
+          <Addbox placeholder="할 일을 입력해주세요." buttonlabel="추가" Onclick={ handleAddTodo }/>
+          <Tabmenu menu={menu} selectedIndex={selectedIndex} onSelect={(index) => setSelectedIndex(index)}/>
         </div>
 
         { /*Section */ }
         <div className="space-y-[12px] h-[300px] text-slate-700 overflow-y-auto">
           {filteredTodos.map((item) => (
-            <Checklist key = {item.id} name = {item.name} isChecked={item.isChecked} onToggle={() => handleToggle(item.id)}/>
+            <Checklist key = {item.id} taskName = {item.name} isChecked={item.isChecked} onToggle={() => handleToggle(item.id)}/>
           ))}
         </div>
 
