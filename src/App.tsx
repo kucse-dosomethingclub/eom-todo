@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import axios from 'axios';
 import CheckIcon from "./components/CheckIcon";
 import Addbox from "./components/Addbox";
 import Tabmenu from "./components/Tabmenu";
@@ -6,33 +7,62 @@ import Checklist from "./components/Checklist";
 
 interface TodoItem {
   id: number;
-  name: string;
-  isChecked: boolean;
+  title: string;
+  isDone: boolean;
 }
 
 const menu = ["전체", "완료", "미완료"]
 
 const App = () => {
   { /* 불러오기 */}
-  const [todo, setTodos] = useState<TodoItem[]>(() => {
+  { /*const [todo, setTodos] = useState<TodoItem[]>(() => {
     const localTodoList = localStorage.getItem('todo');
     return localTodoList ? JSON.parse(localTodoList) : [];
-  });
+  }); */ }
   
-  const handleAddTodo = (input: string) => {
+  const [todo, setTodos] = useState<TodoItem[]>([]);
+  
+  { /*const handleAddTodo = (input: string) => {
     const newTodo: TodoItem = {
       id: Date.now(),
       name: input,
       isChecked: false,
     };
-    { /* ...은 기존 메모리에 있던 데이터를 새로운 메모리 공간으로 몽땅 복사해오는 작업 */}
+    { /* ...은 기존 메모리에 있던 데이터를 새로운 메모리 공간으로 몽땅 복사해오는 작업
     setTodos([...todo, newTodo]);
-  };
+  }; */ }
 
+  const handleAddTodo = async (input: string) => {
+    const newTodo = { title: input, isDone: false};
+
+    try {
+      const response = await axios.post('http://localhost:3001/todos', newTodo);
+      setTodos([...todo, response.data]);
+    } catch(e) {
+      console.error("추가 실패!", e);
+    }
+  };
+  
   { /* 저장하기 */ }
-  useEffect(() => {
+  { /* useEffect(() => {
     localStorage.setItem('todo', JSON.stringify(todo));
-  }, [todo]);
+  }, [todo]); */ }
+  useEffect(() => {
+    const fetchTodos = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/todos');
+        console.log("실제 데이터: ", response.data);
+        if(response.data && Array.isArray(response.data.data)) { 
+          setTodos(response.data.data);
+        } else if (Array.isArray(response.data)) {
+          setTodos(response.data);
+        }
+      } catch (e) {
+        console.error("서버 연결 실패!", e);
+      }
+    };
+    fetchTodos();
+  }, []); // []는 처음 랜더링 될 때 딱 한 번만 실행하라는 뜻
 
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
@@ -40,19 +70,19 @@ const App = () => {
   const filteredTodos = useMemo(() => {
     return todo.filter((item) => {
       if(selectedIndex === 0) return true;
-      if(selectedIndex === 1) return item.isChecked;
-      if(selectedIndex === 2) return !item.isChecked;
+      if(selectedIndex === 1) return item.isDone;
+      if(selectedIndex === 2) return !item.isDone;
       return true;
     });
   },[todo, selectedIndex]);
 
   const handleToggle = (id: number) => {
     setTodos((prevTodo) => prevTodo.map((item) => 
-      item.id === id ? { ...item, isChecked: !item.isChecked }: item));
+      item.id === id ? { ...item, isDone: !item.isDone }: item));
   };
 
   const remainingCount = useMemo(() => {
-    return todo.filter(item => !item.isChecked).length;
+    return todo.filter(item => !item.isDone).length;
   }, [todo]);
 
   return (
@@ -74,7 +104,7 @@ const App = () => {
         { /*Section */ }
         <div className="space-y-[12px] h-[300px] text-slate-700 overflow-y-auto">
           {filteredTodos.map((item) => (
-            <Checklist key = {item.id} taskName = {item.name} isChecked={item.isChecked} onToggle={() => handleToggle(item.id)}/>
+            <Checklist key = {item.id} taskName = {item.title} isChecked={item.isDone} onToggle={() => handleToggle(item.id)}/>
           ))}
         </div>
 
