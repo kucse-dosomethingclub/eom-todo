@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import CheckIcon from "./components/CheckIcon";
-import Addbox from "./components/Addbox";
+import TodoInput from "./components/TodoInput";
 import Tabmenu from "./components/Tabmenu";
 import Checklist from "./components/Checklist";
 
@@ -14,39 +14,25 @@ interface TodoItem {
 const menu = ["전체", "완료", "미완료"]
 
 const App = () => {
-  { /* 불러오기 */}
-  { /*const [todo, setTodos] = useState<TodoItem[]>(() => {
-    const localTodoList = localStorage.getItem('todo');
-    return localTodoList ? JSON.parse(localTodoList) : [];
-  }); */ }
-  
-  const [todo, setTodos] = useState<TodoItem[]>([]);
-  
-  { /*const handleAddTodo = (input: string) => {
-    const newTodo: TodoItem = {
-      id: Date.now(),
-      name: input,
-      isChecked: false,
-    };
-    { /* ...은 기존 메모리에 있던 데이터를 새로운 메모리 공간으로 몽땅 복사해오는 작업
-    setTodos([...todo, newTodo]);
-  }; */ }
+  { /* 서버에서 불러온 todolist를 담을 배열 초기화 */}
+  const [todos, setTodos] = useState<TodoItem[]>([]);
+  { /* 검색어 담을 공간 */}
+  const [searchKeyword, setSearchKeyword] = useState("");
 
+  { /* todo 추가 */}
   const handleAddTodo = async (input: string) => {
     const newTodo = { title: input, isDone: false};
 
     try {
       const response = await axios.post('http://localhost:3001/todos', newTodo);
-      setTodos([...todo, response.data]);
+      
+      setTodos((prev) => [...prev, response.data]);
     } catch(e) {
       console.error("추가 실패!", e);
     }
   };
   
-  { /* 저장하기 */ }
-  { /* useEffect(() => {
-    localStorage.setItem('todo', JSON.stringify(todo));
-  }, [todo]); */ }
+  { /* 데이터 불러오기 */ }
   useEffect(() => {
     const fetchTodos = async () => {
       try {
@@ -68,13 +54,22 @@ const App = () => {
 
   { /* useMemo를 사용해 필터링된 리스트 캐싱 */ }
   const filteredTodos = useMemo(() => {
-    return todo.filter((item) => {
-      if(selectedIndex === 0) return true;
-      if(selectedIndex === 1) return item.isDone;
-      if(selectedIndex === 2) return !item.isDone;
+    return todos.filter((item) => {
+      if (!item || !item.title) return false;
+
+      const isMatched = item.title.toLowerCase().includes(searchKeyword.toLowerCase());
+      if (!isMatched) return false;
+
+      if (selectedIndex === 0) return true;
+      if (selectedIndex === 1) return item.isDone;
+      if (selectedIndex === 2) return !item.isDone;
       return true;
     });
-  },[todo, selectedIndex]);
+  }, [todos, selectedIndex, searchKeyword]);
+
+  const handleSearchTodo = (input: string) => {
+    setSearchKeyword(input);
+  };
 
   const handleToggle = (id: number) => {
     setTodos((prevTodo) => prevTodo.map((item) => 
@@ -82,8 +77,8 @@ const App = () => {
   };
 
   const remainingCount = useMemo(() => {
-    return todo.filter(item => !item.isDone).length;
-  }, [todo]);
+    return todos.filter(item => !item.isDone).length;
+  }, [todos]);
 
   return (
     <div className="bg-slate-50 w-full h-screen flex justify-center items-center">
@@ -97,7 +92,8 @@ const App = () => {
         </div>
 
         <div className="space-y-4">
-          <Addbox placeholder="할 일을 입력해주세요." buttonlabel="추가" Onclick={ handleAddTodo }/>
+          <TodoInput placeholder="할 일을 입력해주세요." buttonlabel="추가" onSubmit={ handleAddTodo }/>
+          <TodoInput placeholder="검색할 제목을 입력해주세요." buttonlabel="검색" onSubmit={ handleSearchTodo }/> 
           <Tabmenu menu={menu} selectedIndex={selectedIndex} onSelect={(index) => setSelectedIndex(index)}/>
         </div>
 
