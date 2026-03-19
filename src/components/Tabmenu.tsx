@@ -1,20 +1,20 @@
 import Check from "../components/Check";
 
-interface MenuItem {
-  isSelected: (index: number) => void,
+interface TabMenuProps {
+  menu: string[];
+  onSelect: (index: number) => void,
   selectedIndex: number,
 }
 
-const Tabmenu = ({ selectedIndex, isSelected }: MenuItem) => {
-  const menu: string[] = ["전체", "완료", "미완료"]
+const Tabmenu = ({ menu, selectedIndex, onSelect }: TabMenuProps) => {
 
   return(
-    <div className="flex p-1 rounded-[14px] bg-slate-100">
+    <div role="tablist" className="flex p-1 rounded-[14px] bg-slate-100">
       {
         menu.map((value, index) => {
-          return <Check isSelected={index === selectedIndex} name={value} onClick={() => {
-            isSelected(index);
-          }} />
+          return <Check key={index} isSelected={index === selectedIndex} todoName={value} onClick={() => 
+            onSelect(index)} 
+            />
         })
       }
     </div>
