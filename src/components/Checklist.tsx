@@ -3,7 +3,7 @@ import CheckIcon from "./CheckIcon";
 interface ChecklistProps {
   taskName: string,
   isChecked: boolean,
-  onToggle:() => void,
+  onToggle: () => void,
 }
 
 const Checklist = ({ taskName, isChecked, onToggle }: ChecklistProps) => {
